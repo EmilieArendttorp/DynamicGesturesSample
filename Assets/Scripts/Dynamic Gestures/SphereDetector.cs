@@ -18,7 +18,8 @@ public class SphereDetector : MonoBehaviour
 
     DynamicSphere currentPath;
     int whichSphere = 0;
-    float indexOriginThreshold = 0.2f;
+    public float indexOriginThreshold = 0.2f;
+    public int sphereFingerIndex = 8;
     float pathCompletion; // Could be used to progressively fire script (lerp) in GestureFunction.cs
     bool pathCompleted = false;
     bool isRightHand;
@@ -136,10 +137,10 @@ public class SphereDetector : MonoBehaviour
 
         for (int i = 0; i < originSpheres.Length; i++)
         {
-            float indexOriginDistance = Vector3.Distance(originSpheres[i].transform.position, fingerBones[9].Transform.position);
+            float indexOriginDistance = Vector3.Distance(originSpheres[i].transform.position, fingerBones[sphereFingerIndex].Transform.position);
             if (indexOriginDistance >= indexOriginThreshold)
             {
-                originSpheres[i].transform.position = fingerBones[9].Transform.position;
+                originSpheres[i].transform.position = fingerBones[sphereFingerIndex].Transform.position;
                 //originSpheres[i].transform.rotation = Camera.main.transform.rotation;
             }
         }

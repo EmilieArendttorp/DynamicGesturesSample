@@ -62,62 +62,66 @@ public class RecognizeDynamicLHand : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (handInitializer.isInitialized && leftHGesture.currentGesture_L.name != null && !pathsInstantiated_L)
+        if (!handInitializer.debugMode)
         {
-            Vector3 palmDirection = handInitializer.fingerBonesLeftH[9].Transform.up;
-            palmOrientation = SnapDirection(palmDirection);
-            //Debug.Log("The palm's orientation is currently: " + palmOrientation);
+            if (handInitializer.isInitialized && leftHGesture.currentGesture_L.name != null && !pathsInstantiated_L)
+            {
+                Vector3 palmDirection = handInitializer.fingerBonesLeftH[9].Transform.up;
+                palmOrientation = SnapDirection(palmDirection);
+                //Debug.Log("The palm's orientation is currently: " + palmOrientation);
 
-            if (isReset)
-            {
-                isReset = false;
-                timer = 0;
+                if (isReset)
+                {
+                    isReset = false;
+                    timer = 0;
+                }
+                // If there is no sphereDetector and the orientation of the palm is down (orientation optional), 
+                // instantiate sphereDecector and sphere paths
+                if (!sphereDetectorInstantiated && palmOrientation == "down")
+                {
+                    InstantiateDetector(indexSphereBone, indexSphereScale);
+                    InstantiateDynamicLeftHGestures();
+                }
             }
-            // If there is no sphereDetector and the orientation of the palm is down (orientation optional), 
-            // instantiate sphereDecector and sphere paths
-            if (!sphereDetectorInstantiated && palmOrientation == "down")
+
+            // Tries to invoke the name of the current gesture being performed
+            if (leftHGesture.currentGesture_L.name != null && leftHGesture.currentGesture_L.name != previousGesture_L.name)
             {
-                InstantiateDetector(indexSphereBone, indexSphereScale);
-                InstantiateDynamicLeftHGestures();
+                try
+                {
+                    gestureFunctions.Invoke(leftHGesture.currentGesture_L.name, 0);
+                }
+                catch (System.Exception)
+                {
+                    Debug.Log("Could not invoke: " + leftHGesture.currentGesture_L.name);
+                    throw;
+                }
+
+            }
+
+            // Clean up spheres when current gesture = null (no gesture recognized)
+            if (leftHGesture.currentGesture_L.name == null && !isReset)
+            {
+                timer += Time.deltaTime;
+                if (timer >= gestureResetDelay)
+                {
+                    destroySpheres.DestroyOriginSpheres("OriginSphere_L");
+                    DestroyDetector();
+                    spherePathList_L.Clear();
+                    pathsInstantiated_L = false;
+                    sphereDetectorInstantiated = false;
+                    isReset = true;
+                }
+
+            }
+
+            // Update previous gesture
+            if (previousGesture_L.name != leftHGesture.currentGesture_L.name)
+            {
+                previousGesture_L = leftHGesture.currentGesture_L;
             }
         }
-
-        // Tries to invoke the name of the current gesture being performed
-        if (leftHGesture.currentGesture_L.name != null && leftHGesture.currentGesture_L.name != previousGesture_L.name)
-        {
-            try
-            {
-                gestureFunctions.Invoke(leftHGesture.currentGesture_L.name, 0);
-            }
-            catch (System.Exception)
-            {
-                Debug.Log("Could not invoke: " + leftHGesture.currentGesture_L.name);
-                throw;
-            }
-
-        }
-
-        // Clean up spheres when current gesture = null (no gesture recognized)
-        if (leftHGesture.currentGesture_L.name == null && !isReset )
-        {
-            timer += Time.deltaTime;
-            if (timer >= gestureResetDelay)
-            {
-                destroySpheres.DestroyOriginSpheres("OriginSphere_L");
-                DestroyDetector();
-                spherePathList_L.Clear();
-                pathsInstantiated_L = false;
-                sphereDetectorInstantiated = false;
-                isReset = true;
-            }
-
-        }
-
-        // Update previous gesture
-        if (previousGesture_L.name != leftHGesture.currentGesture_L.name)
-        {
-            previousGesture_L = leftHGesture.currentGesture_L;
-        }
+        
     }
 
 

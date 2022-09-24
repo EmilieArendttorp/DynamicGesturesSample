@@ -61,57 +61,61 @@ public class RecognizeDynamicRHand : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (handInitializer.isInitialized && rightHGesture.currentGesture_R.name != null && !pathsInstantiated_R)
+        if (!handInitializer.debugMode)
         {
-            Vector3 palmDirection = -handInitializer.fingerBonesRightH[9].Transform.up;
-            palmOrientation = SnapDirection(palmDirection);
-            //Debug.Log("The palm's orientation is currently: " + palmOrientation);
+            if (handInitializer.isInitialized && rightHGesture.currentGesture_R.name != null && !pathsInstantiated_R)
+            {
+                Vector3 palmDirection = -handInitializer.fingerBonesRightH[9].Transform.up;
+                palmOrientation = SnapDirection(palmDirection);
+                //Debug.Log("The palm's orientation is currently: " + palmOrientation);
 
-            if (isReset)
-            {
-                isReset = false;
-                timer = 0;
+                if (isReset)
+                {
+                    isReset = false;
+                    timer = 0;
+                }
+                if (!sphereDetectorInstantiated && palmOrientation == "down")
+                {
+                    InstantiateDetector(indexSphereBone, indexSphereScale);
+                    InstantiateDynamicRightHGestures();
+                }
             }
-            if (!sphereDetectorInstantiated && palmOrientation == "down")
+
+            if (rightHGesture.currentGesture_R.name != null && rightHGesture.currentGesture_R.name != previousGesture_R.name)
             {
-                InstantiateDetector(indexSphereBone, indexSphereScale);
-                InstantiateDynamicRightHGestures();
+                try
+                {
+                    gestureFunctions.Invoke(rightHGesture.currentGesture_R.name, 0);
+                }
+                catch (System.Exception)
+                {
+                    Debug.Log("Could not invoke: " + rightHGesture.currentGesture_R.name);
+                    throw;
+                }
+            }
+
+
+            if (rightHGesture.currentGesture_R.name == null && !isReset)
+            {
+                timer += Time.deltaTime;
+                if (timer >= gestureResetDelay)
+                {
+                    destroySpheres.DestroyOriginSpheres("OriginSphere_R");
+                    DestroyDetector();
+                    spherePathList_R.Clear();
+                    pathsInstantiated_R = false;
+                    sphereDetectorInstantiated = false;
+                    isReset = true;
+                }
+
+            }
+
+            if (previousGesture_R.name != rightHGesture.currentGesture_R.name)
+            {
+                previousGesture_R = rightHGesture.currentGesture_R;
             }
         }
-
-        if (rightHGesture.currentGesture_R.name != null && rightHGesture.currentGesture_R.name != previousGesture_R.name)
-        {
-            try
-            {
-                gestureFunctions.Invoke(rightHGesture.currentGesture_R.name, 0);
-            }
-            catch (System.Exception)
-            {
-                Debug.Log("Could not invoke: " + rightHGesture.currentGesture_R.name);
-                throw;
-            }
-        }
-
-
-        if (rightHGesture.currentGesture_R.name == null && !isReset)
-        {
-            timer += Time.deltaTime;
-            if (timer >= gestureResetDelay)
-            {
-                destroySpheres.DestroyOriginSpheres("OriginSphere_R");
-                DestroyDetector();
-                spherePathList_R.Clear();
-                pathsInstantiated_R = false;
-                sphereDetectorInstantiated = false;
-                isReset = true;
-            }
-
-        }
-
-        if (previousGesture_R.name != rightHGesture.currentGesture_R.name)
-        {
-            previousGesture_R = rightHGesture.currentGesture_R;
-        }
+        
     }
 
 

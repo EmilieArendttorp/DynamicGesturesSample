@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 public class GestureFunctions : MonoBehaviour
 {
+    public MeshRenderer boxRend;
+
+    
     // Between these comments may not be necessary
     HandInitializer handInitializer;
     RecognizeDynamicRHand recognizeDynamic_R;
@@ -19,6 +21,11 @@ public class GestureFunctions : MonoBehaviour
     }
     // Between these comments may not be necessary
     
+
+    void M()
+    {
+        boxRend.material.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+    }
 
     void GestureName_R()
     {

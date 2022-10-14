@@ -123,7 +123,7 @@ public class SphereDetector : MonoBehaviour
                         Debug.Log("After path completion, could not invoke GestureFunction." + sphereName);
                         throw;
                     }
-                    Invoke("ResetSphereCount", .1f);
+                    Invoke(nameof(ResetSphereCount), .1f);
                 }
                 Destroy(other.gameObject); // Destroys the sphere it enters, that way we won't enter it again by mistake
             }
